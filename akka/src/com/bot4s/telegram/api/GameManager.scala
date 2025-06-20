@@ -17,6 +17,7 @@ import io.circe.{ Decoder, Encoder }
 
 import scala.concurrent.Future
 import scala.util.{ Failure, Success }
+//import scala.deriving.Mirror
 
 /**
  * Provides basic endpoints to manage game's scoring.
@@ -39,7 +40,7 @@ trait GameManager extends WebRoutes {
   import com.bot4s.telegram.marshalling._
 
   private def extractPayload: Directive1[Payload] =
-    headerValueByName("Referer").map { referer: String =>
+    headerValueByName("Referer").map { (referer: String) =>
       val parts          = referer.split("\\?payload=")
       val encodedPayload = URLDecoder.decode(parts(1), "UTF-8")
       Payload.base64Decode(encodedPayload)
@@ -120,7 +121,19 @@ object Payload {
       cbq.gameShortName.get
     ) // throws if not a game callback
 
-  import marshalling._
+//  import marshalling.CirceEncoders.customConfig
+//  import io.circe.{ Encoder, Decoder }
+//  import io.circe.generic.extras.semiauto.{ deriveConfiguredEncoder, deriveConfiguredDecoder }
+//  implicit val stringEncoder: Encoder[String] = Encoder.encodeString
+//
+//  given Mirror.Of[Payload] = summon[Mirror.ProductOf[Payload]]
+
+  import com.bot4s.telegram.marshalling.CirceEncoders.userEncoder
+  import com.bot4s.telegram.marshalling.CirceEncoders.chatIdEncoder
+  import com.bot4s.telegram.marshalling.CirceDecoders.userDecoder
+  import com.bot4s.telegram.marshalling.CirceDecoders.chatIdDecoder
+
   implicit val payloadEncoder: Encoder[Payload] = deriveConfiguredEncoder[Payload]
-  implicit val payloadDecoder: Decoder[Payload] = deriveDecoder[Payload]
+
+  implicit val payloadDecoder: Decoder[Payload] = deriveConfiguredDecoder[Payload]
 }

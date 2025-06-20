@@ -57,6 +57,10 @@ trait CirceEncoders {
   implicit val animationEncoder: Encoder[Animation]         = deriveConfiguredEncoder[Animation]
   implicit val gameEncoder: Encoder[Game]                   = deriveConfiguredEncoder[Game]
 
+  implicit val writeAccessAllowedEncoder: Encoder[WriteAccessAllowed] =
+    deriveConfiguredEncoder[WriteAccessAllowed]
+  implicit val maybeWriteAccessAllowedEncoder: Encoder[Option[WriteAccessAllowed]] =
+    Encoder.encodeOption[WriteAccessAllowed]
   implicit val messageEncoder: Encoder[Message]     = deriveConfiguredEncoder[Message]
   implicit val messageIdEncoder: Encoder[MessageId] = deriveConfiguredEncoder[MessageId]
 
@@ -306,8 +310,6 @@ trait CirceEncoders {
     deriveConfiguredEncoder[GeneralForumTopicHidden.type]
   implicit val generalForumTopicUnhiddenEncoder: Encoder[GeneralForumTopicUnhidden.type] =
     deriveConfiguredEncoder[GeneralForumTopicUnhidden.type]
-  implicit val writeAccessAllowedEncoder: Encoder[WriteAccessAllowed.type] =
-    deriveConfiguredEncoder[WriteAccessAllowed.type]
   // for v6.3 support
   implicit val forumTopicEncoder: Encoder[ForumTopic]             = deriveConfiguredEncoder[ForumTopic]
   implicit val createForumTopicEncoder: Encoder[CreateForumTopic] = deriveConfiguredEncoder[CreateForumTopic]

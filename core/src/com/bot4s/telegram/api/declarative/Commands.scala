@@ -9,7 +9,7 @@ case class Command(cmd: String, recipient: Option[String])
  * Provides a declarative interface to define commands.
  */
 trait Commands[F[_]] extends Messages[F] with CommandImplicits {
-  _: BotBase[F] =>
+  self: BotBase[F] =>
 
   /**
    * Receives /commands with the specified action.
@@ -32,7 +32,7 @@ trait Commands[F[_]] extends Messages[F] with CommandImplicits {
         } else {
           unit
         }
-      }(message)
+      }(using message)
     }
 
   /**

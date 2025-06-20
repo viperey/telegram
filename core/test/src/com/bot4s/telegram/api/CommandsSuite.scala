@@ -36,7 +36,7 @@ class CommandsSuite extends AnyFlatSpec with MockFactory with TestUtils with Com
           case GetMe =>
             Future.successful({
               val jsonUser = toJson[User](botUser)
-              fromJson[User](jsonUser)(userDecoder)
+              fromJson[User](jsonUser)(using userDecoder)
             })
           case _ => throw new Exception("Do know what to do")
         }

@@ -3,13 +3,14 @@ import mill.scalalib._
 import mill.scalalib.publish._
 import mill.scalalib.api.ZincWorkerUtil
 
-val ScalaVersions = Seq("2.12.19", "2.13.13", "3.7.0")
+val ScalaVersions = Seq("3.7.0")
+//val ScalaVersions = Seq("2.12.19", "2.13.13", "3.7.0")
 
 object library {
 
   object Version {
-    val circe              = "0.14.13"
-    val circeGenericExtras = "0.14.4"
+    val circe              = "0.14.14"
+    val circeGenericExtras = "0.14.5-RC1"
     val cats               = "2.13.0"
     val catsEffect         = "2.5.5"
     val zio                = "2.1.16"
@@ -74,20 +75,21 @@ object library {
 }
 
 trait Bot4sTelegramModule extends CrossScalaModule {
-  protected def isScala3: Task[Boolean] = T.task(ZincWorkerUtil.isScala3(scalaVersion()))
 
   override def scalacOptions = Seq(
+    "-language:implicitConversions",
+    "-language:higherKinds",
+    "-language:existentials",
+    "-language:postfixOps",
+    "-Wunused:imports",
+    "-Wunused:locals",
+    "-Wunused:privates",
+    "-Wconf:cat=unused:s",
     "-unchecked",
     "-deprecation",
-    "-language:_",
     "-encoding",
     "UTF-8",
-    "-feature",
-    "-unchecked",
-    "-Xlint:_",
-    // circe raises a lot of those warnings in the CirceEncoders file
-    "-Wconf:cat=lint-byname-implicit:s",
-    "-Ywarn-dead-code"
+    "-feature"
   )
 
   override def ivyDeps = T {
@@ -158,7 +160,7 @@ object core extends Module {
     override val location: String        = "core"
 
     val versionDependencies: T[Agg[Dep]] = T {
-      if (isScala3()) Agg.empty else Agg(library.scalajHttp)
+      Agg.empty
     }
 
     override def ivyDeps = T {
@@ -212,11 +214,13 @@ object examples extends Module {
   trait ExamplesJvmModule extends ExamplesJvmCommon {
     override val location: String = "examples"
 
-    override def ivyDeps = super.ivyDeps() ++ Agg(
-      library.scalajHttp,
-      library.akkaHttpCors,
-      library.sttpOkHttp
-    )
+    // Conditional dependencies for examples
+    val exampleDependencies: T[Agg[Dep]] = Agg(
+        library.sttpOkHttp,
+        library.akkaHttpCors
+      )
+
+    override def ivyDeps = super.ivyDeps() ++ exampleDependencies()
 
     override def moduleDeps = super.moduleDeps ++ Seq(core.jvm(), akka.jvm())
   }
@@ -266,7 +270,6 @@ object examples extends Module {
     }
 
     override def moduleDeps = super.moduleDeps ++ Seq(core.jvm())
-
     override def sources = T.sources(build.millSourcePath / "examples" / "src-zio")
   }
 
@@ -282,7 +285,6 @@ object examples extends Module {
     }
 
     override def moduleDeps = super.moduleDeps ++ Seq(core.jvm())
-
     override def sources = T.sources(build.millSourcePath / "examples" / "src-monix")
   }
 }

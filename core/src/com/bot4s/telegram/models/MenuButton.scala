@@ -1,5 +1,7 @@
 package com.bot4s.telegram.models
 
+import io.circe.generic.semiauto.deriveDecoder
+
 /**
  * This object describes the bot's menu button in a private chat. It should be one of
  *
@@ -59,5 +61,5 @@ object MenuButton {
       }
     )
 
-  implicit val menuButtonDecoder: Decoder[MenuButton] = deriveConfiguredDecoder
+  implicit val menuButtonDecoder: Decoder[MenuButton] = deriveDecoder[MenuButton]
 }

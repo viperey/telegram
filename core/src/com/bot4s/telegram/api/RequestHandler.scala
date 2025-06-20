@@ -10,11 +10,20 @@ import com.bot4s.telegram.methods._
 import io.circe.{ Decoder, Encoder }
 import com.typesafe.scalalogging.StrictLogging
 
-import com.bot4s.telegram.marshalling._
+import com.bot4s.telegram.marshalling.given
+import io.circe.syntax._
+import io.circe.generic.semiauto._
+import io.circe.generic.extras.auto._
+import io.circe.generic.extras.Configuration
+import io.circe.Decoder.decodeInt
+import io.circe.Decoder.decodeSeq
+import io.circe.Decoder.decodeArray
+
+implicit val config: Configuration = Configuration.default.withSnakeCaseMemberNames
 
 abstract class RequestHandler[F[_]](implicit monadError: MonadError[F, Throwable]) extends StrictLogging {
 
-  def sendRequest[R, T <: Request[_ /* R */ ]](request: T)(implicit encT: Encoder[T], decR: Decoder[R]): F[R]
+  def sendRequest[R, T <: Request[? /* R */ ]](request: T)(implicit encT: Encoder[T], decR: Decoder[R]): F[R]
 
   /**
    * Spawns a type-safe request.
